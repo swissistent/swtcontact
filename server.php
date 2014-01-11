@@ -4,17 +4,27 @@
         private $url;
         private $username;
         private $password;
+        private $baseString;
         
         function __construct($url, $username, $password)
         {
-            $this->url=$url;
-            $this->username=$username;
-            $this->password=$password;
+            $this->url = $url;
+            $this->username = $username;
+            $this->password = $password;
+            $this->baseString = "loginuser=$this->username\r\nloginpass=$this->password\r\n";
         }
         
         function login()
         {
-            $result = $this->get_group_list();
+            return $this->my_json_decode('get_group_list');
+        }
+        
+        function my_json_decode($cmd)
+        {
+                
+            $method = new ReflectionMethod('Server', $cmd);
+            $result = $method->invoke($this);
+
             $decoded = json_decode($result);
 
             if (count($decoded) == 1)
@@ -42,16 +52,15 @@
         
         function get_group_list()
         {
-            $data = "loginuser=$this->username\r\nloginpass=$this->password\r\n";
-            $result = $this->do_post_request("/getgrouplist.rest", $data);
+            $result = $this->do_post_request("/getgrouplist.rest");
             return $result;
         }
     
-        function do_post_request($cmd, $data)
+        function do_post_request($cmd, $data='')
         {
             $params = array('http' => array(
                                         'method' => 'POST',
-                                        'content' => $data,
+                                        'content' => $this->baseString.$data,
                                         'header' => "Content-Type: application/x-rstaskgroup-name-value-pair; charset=UTF-8\r\nConnection: close"
                                             ));
             $ctx = stream_context_create($params);
