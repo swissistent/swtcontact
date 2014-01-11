@@ -11,26 +11,32 @@
      Max WP Version: 2.8
      */
     
+    include "swthelper.php";
+    include "server.php";
+
     
     class SwissistentTasksContactForm {
-        static $is_enabled = false;
+        
+
+        
+        
+        static $error;
         static $json;
         static $plugin_dir;
+        static $server;
         
         function init(){
             add_option("Swissistent Tasks Benutzername:");
             load_plugin_textdomain('swtcontact', false, dirname(plugin_basename(__FILE__)));
-            if(get_option("username") && get_option("password"))
-                self::$is_enabled = true;
-            else
-                self::$is_enabled = false;
+            self::$server = new Server("http://88.198.191.154",get_option("username"), get_option("password"));
             self::$plugin_dir = get_option('siteurl').'/'.PLUGINDIR.'/swtcontact/';
             if(function_exists('current_user_can') && current_user_can('manage_options')){
                 add_action('admin_menu', array(__CLASS__, 'add_settings_page'));
                 add_filter('plugin_action_links', array(__CLASS__, 'register_actions'), 10, 2);
             }
             
-            if(self::$is_enabled){
+            if(get_option("username")){
+                self::$error = self::$server->login();
                 add_action('wp_footer', array(__CLASS__, 'insert_code'));
             } else {
                 add_action('admin_notices', array(__CLASS__, 'admin_notice'));
@@ -45,7 +51,6 @@
         }*/
         
         function admin_notice(){
-            if(!self::$is_enabled)
                 echo '<div class="error"><p><strong>'.sprintf(__('Die Swissistent Tasks Contact Form Integration ist noch nicht abgeschlossen. Bitte erg&auml;ntzen Sie auf der <a href="%s">Plug-In Seite</a> Tasks Benutzername und Passwort.' ), admin_url('options-general.php?page=swtcontact')).'</strong></p></div>';
         }
         
@@ -72,8 +77,8 @@
         }
         
         function settings_page(){
-            if(get_option("username") && get_option("password") && !self::$is_enabled){
-                echo '<div id="setting-error-settings_error" class="error settings-error"><p><strong>Es ist ein Fehler passiert - bitte pr&uuml;fen Sie Benutzernamen und Passwort</strong></p></div>';
+            if(self::$error){
+                echo_admin_error(self::$error);
             }
             $plugin_dir = self::$plugin_dir;
             $in_swtcontact = true;
