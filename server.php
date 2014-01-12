@@ -16,44 +16,40 @@
         
         function login()
         {
-            return $this->my_json_decode('get_group_list');
+            return $this->my_json_decode('/getgrouplist.rest');
+        }
+
+        function get_group_list()
+        {
+            return $this->my_json_decode('/getgrouplist.rest');
         }
         
         function my_json_decode($cmd)
         {
-                
-            $method = new ReflectionMethod('Server', $cmd);
-            $result = $method->invoke($this);
+            $result = $this->do_post_request($cmd);
 
             $decoded = json_decode($result);
 
             if (count($decoded) == 1)
             {
-                if ($decoded[0]->{"result"})
-                {
-                    return 0;
-                }
-                else
+                if (!$decoded[0]->{"result"})
                 {
                     $errorinfo = $decoded[0]->{"errorinfo"};
                     switch ($errorinfo)
                     {
                         case "Error: login failed":
-                            return "Login am Swissistent Tasks Server ist fehlgeschlagen, bitte pr&uuml;fen Sie Benutzernamen und Passwort";
+                            $decoded[0]->{"errorinfo"} = "Login am Swissistent Tasks Server ist fehlgeschlagen, bitte pr&uuml;fen Sie Benutzernamen und Passwort";
+                            break;
                     }
-                    return $errorinfo;
+                   // return $errorinfo;
                 }
             }
             else
             {
-                return "Fehler: Bitte pr&uuml;fen Sie Benutzernamen und Passwort";
+                $decoded = array(array('result' => false, 'errorinfo' => "Fehler: Bitte pr&uuml;fen Sie Benutzernamen und Passwort"));
             }
-        }
-        
-        function get_group_list()
-        {
-            $result = $this->do_post_request("/getgrouplist.rest");
-            return $result;
+            
+            return $decoded;
         }
     
         function do_post_request($cmd, $data='')
