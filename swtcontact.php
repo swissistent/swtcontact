@@ -48,7 +48,7 @@
                 }
                 else
                 {
-                    self::$error=$decoded[0]->{"errorInfo"};
+                    self::$error=$returncode[0]->{"errorinfo"};
                 }
                 add_action('wp_footer', array(__CLASS__, 'insert_code'));
             }
@@ -101,6 +101,7 @@
             }
             else
             {
+
             }
             $plugin_dir = self::$plugin_dir;
             $in_swtcontact = true;
