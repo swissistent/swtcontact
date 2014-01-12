@@ -26,7 +26,7 @@
         static $server;
         
         function init(){
-            add_option("Swissistent Tasks Benutzername:");
+
             load_plugin_textdomain('swtcontact', false, dirname(plugin_basename(__FILE__)));
             self::$server = new Server("http://88.198.191.154",get_option("username"), get_option("password"));
             self::$plugin_dir = get_option('siteurl').'/'.PLUGINDIR.'/swtcontact/';
@@ -35,10 +35,24 @@
                 add_filter('plugin_action_links', array(__CLASS__, 'register_actions'), 10, 2);
             }
             
-            if(get_option("username")){
-                self::$error = self::$server->login();
+            if(get_option("username"))
+            {
+                $returncode = self::$server->get_group_list();
+
+                if (count($returncode) == 1 && $returncode[0]->{"result"}) //kein error, wenn ein result geliefert wird
+                {
+                    $grouplist = $returncode[0]->{"grouplist"};
+
+                    update_option("group_selection",$grouplist);
+
+                }
+                else
+                {
+                    self::$error=$decoded[0]->{"errorInfo"};
+                }
                 add_action('wp_footer', array(__CLASS__, 'insert_code'));
-            } else {
+            }
+            else {
                 add_action('admin_notices', array(__CLASS__, 'admin_notice'));
             }
         }
@@ -64,6 +78,9 @@
         function register_settings(){
             register_setting('swtcontact', 'username');
             register_setting('swtcontact', 'password');
+            register_setting('swtcontact', 'group_selection');
+            register_setting('swtcontact', 'group');
+
             add_settings_section('swtcontact', 'Swissistent Tasks Contact Form', '', 'swtcontact');
         }
         
@@ -76,9 +93,14 @@
             return($links);
         }
         
-        function settings_page(){
-            if(self::$error){
+        function settings_page()
+        {
+            if (self::$error)
+            {
                 echo_admin_error(self::$error);
+            }
+            else
+            {
             }
             $plugin_dir = self::$plugin_dir;
             $in_swtcontact = true;

@@ -4,54 +4,59 @@
         private $url;
         private $username;
         private $password;
+        private $baseString;
         
         function __construct($url, $username, $password)
         {
-            $this->url=$url;
-            $this->username=$username;
-            $this->password=$password;
+            $this->url = $url;
+            $this->username = $username;
+            $this->password = $password;
+            $this->baseString = "loginuser=$this->username\r\nloginpass=$this->password\r\n";
         }
         
         function login()
         {
-            $result = $this->get_group_list();
+            return $this->my_json_decode('/getgrouplist.rest');
+        }
+
+        function get_group_list()
+        {
+            return $this->my_json_decode('/getgrouplist.rest');
+        }
+        
+        function my_json_decode($cmd)
+        {
+            $result = $this->do_post_request($cmd);
+
             $decoded = json_decode($result);
 
             if (count($decoded) == 1)
             {
-                if ($decoded[0]->{"result"})
-                {
-                    return 0;
-                }
-                else
+                if (!$decoded[0]->{"result"})
                 {
                     $errorinfo = $decoded[0]->{"errorinfo"};
                     switch ($errorinfo)
                     {
                         case "Error: login failed":
-                            return "Login am Swissistent Tasks Server ist fehlgeschlagen, bitte pr&uuml;fen Sie Benutzernamen und Passwort";
+                            $decoded[0]->{"errorinfo"} = "Login am Swissistent Tasks Server ist fehlgeschlagen, bitte pr&uuml;fen Sie Benutzernamen und Passwort";
+                            break;
                     }
-                    return $errorinfo;
+                   // return $errorinfo;
                 }
             }
             else
             {
-                return "Fehler: Bitte pr&uuml;fen Sie Benutzernamen und Passwort";
+                $decoded = array(array('result' => false, 'errorinfo' => "Fehler: Bitte pr&uuml;fen Sie Benutzernamen und Passwort"));
             }
-        }
-        
-        function get_group_list()
-        {
-            $data = "loginuser=$this->username\r\nloginpass=$this->password\r\n";
-            $result = $this->do_post_request("/getgrouplist.rest", $data);
-            return $result;
+            
+            return $decoded;
         }
     
-        function do_post_request($cmd, $data)
+        function do_post_request($cmd, $data='')
         {
             $params = array('http' => array(
                                         'method' => 'POST',
-                                        'content' => $data,
+                                        'content' => $this->baseString.$data,
                                         'header' => "Content-Type: application/x-rstaskgroup-name-value-pair; charset=UTF-8\r\nConnection: close"
                                             ));
             $ctx = stream_context_create($params);
