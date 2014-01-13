@@ -17,9 +17,6 @@
     
     class SwissistentTasksContactForm {
         
-
-        
-        
         static $error;
         static $json;
         static $plugin_dir;
@@ -29,6 +26,7 @@
 
             load_plugin_textdomain('swtcontact', false, dirname(plugin_basename(__FILE__)));
             self::$server = new Server("http://88.198.191.154",get_option("username"), get_option("password"));
+            
             self::$plugin_dir = get_option('siteurl').'/'.PLUGINDIR.'/swtcontact/';
             if(function_exists('current_user_can') && current_user_can('manage_options')){
                 add_action('admin_menu', array(__CLASS__, 'add_settings_page'));
@@ -37,7 +35,7 @@
             
             if(get_option("username"))
             {
-                $returncode = self::$server->get_group_list();
+                $returncode = self::$server->login();
 
                 if (count($returncode) == 1 && $returncode[0]->{"result"}) //kein error, wenn ein result geliefert wird
                 {
@@ -49,6 +47,7 @@
                 else
                 {
                     self::$error=$returncode[0]->{"errorinfo"};
+                    //self::$error=json_encode($returncode);
                 }
                 add_action('wp_footer', array(__CLASS__, 'insert_code'));
             }
@@ -110,4 +109,59 @@
     }
     
     add_action('init', array('SwissistentTasksContactForm', 'init'));
+
+    //---
+    
+    
+    if( ! function_exists('wp_mail') ) {
+        function wp_mail( $to, $subject, $message, $headers = '' )
+        {
+            try
+            {
+                if (SwissistentTasksContactForm::$server!=null)
+                {
+                    $returncode = SwissistentTasksContactForm::$server->create_task($subject,$message);
+                    throw new Exception();
+                    
+                    if (count($returncode) == 1 && $returncode[0]->{"result"}) //kein error, wenn ein result geliefert wird
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return wp_mail_error($to,$subject,$message,json_encode($returncode),$headers);
+
+                    }
+                }
+            }
+            catch (Exception $e)
+            {
+                return wp_mail_error($to,$subject,$message,$e,$headers);
+            }
+            
+            return wp_mail_error($to,$subject,$message,'SwissistentTasksContactForm::$server is null',$headers);
+
+        }
+    }
+    
+    function wp_mail_error( $to, $subject, $message, $error, $headers = '' )
+    {
+        
+        $returncode = wp_mail_original(get_settings('admin_email'),'ERROR in wp_mail_script',$error,$headers);
+        return $returncode && wp_mail_original($to,$subject,$message,$headers);
+
+        
+    }
+                                         
+    function wp_mail_original( $to, $subject, $message, $headers = '' )
+    {
+        if( $headers == '' )
+        {
+            $headers = "MIME-Version: 1.0\n" .
+            "From: " . get_settings('admin_email') . "\n" .
+            "Content-Type: text/plain; charset=\"" . get_settings('blog_charset') . "\"\n";
+        }
+        return @mail($to, $subject, $message, $headers);
+    }
+    
 ?>
