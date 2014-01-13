@@ -24,9 +24,19 @@
             return $this->my_json_decode('/getgrouplist.rest');
         }
         
-        function my_json_decode($cmd)
+        function create_task($taskname, $details)
         {
-            $result = $this->do_post_request($cmd);
+            
+            $details2 = str_replace ("\r\n", "\\r\\n", $details);
+            $details2 = str_replace ("\r", "\\r\\n", $details2);
+            $details2 = str_replace ("\n", "\\r\\n", $details2);
+     
+            return $this->my_json_decode('/createtask.rest',"projectid=8\r\ntitle=$taskname\r\ndetails=$details2\r\n");
+        }
+        
+        function my_json_decode($cmd,$data='')
+        {
+            $result = $this->do_post_request($cmd,$data);
 
             $decoded = json_decode($result);
 
@@ -41,7 +51,6 @@
                             $decoded[0]->{"errorinfo"} = "Login am Swissistent Tasks Server ist fehlgeschlagen, bitte pr&uuml;fen Sie Benutzernamen und Passwort";
                             break;
                     }
-                   // return $errorinfo;
                 }
             }
             else
@@ -52,7 +61,7 @@
             return $decoded;
         }
     
-        function do_post_request($cmd, $data='')
+        function do_post_request($cmd, $data)
         {
             $params = array('http' => array(
                                         'method' => 'POST',
