@@ -76,6 +76,7 @@
         function register_settings(){
             register_setting('swtcontact', 'username');
             register_setting('swtcontact', 'passwordHash');
+            register_setting('swtcontact', 'ignorePattern');
             register_setting('swtcontact', 'group_selection');
             register_setting('swtcontact', 'group');
             register_setting('swtcontact', 'project_selection');
@@ -121,16 +122,22 @@
             {
                 if (SwissistentTasksContactForm::$server!=null)
                 {
-                    $returncode = SwissistentTasksContactForm::$server->create_task($subject,get_option('project'),get_option('group'),get_option('category'),$message);
-
-                    if (count($returncode) == 1 && $returncode[0]->{"result"}) //kein error, wenn ein result geliefert wird
+                    if ($subject<>get_option('ignorePattern'))
                     {
-                        return true;
+                        $returncode = SwissistentTasksContactForm::$server->create_task($subject,get_option('project'),get_option('group'),get_option('category'),$message);
+
+                        if (count($returncode) == 1 && $returncode[0]->{"result"}) //kein error, wenn ein result geliefert wird
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return wp_mail_error($to,$subject,$message,json_encode($returncode),$headers);
+                        }
                     }
-                    else
+                    else //Zum Beispiel Bestaetigungs-E-Mails noch immer per E-Mail
                     {
-                        return wp_mail_error($to,$subject,$message,json_encode($returncode),$headers);
-
+                        return wp_mail_original( $to, $subject, $message, $headers = '' );
                     }
                 }
             }
