@@ -4,6 +4,7 @@
         private $url;
         private $username;
         private $password;
+     //   private $project;
         private $baseString;
         
         function __construct($url, $username, $password)
@@ -24,23 +25,33 @@
             return $this->my_json_decode('/getgrouplist.rest');
         }
         
-        function create_task($taskname, $details)
+        function get_project_list()
+        {
+            return $this->my_json_decode('/getprojectlist.rest');
+        }
+        
+        function get_category_list()
+        {
+            return $this->my_json_decode('/getcategorylist.rest');
+        }
+
+        function create_task($taskname, $projectid, $group, $category, $details)
         {
             
             $details2 = str_replace ("\r\n", "\\r\\n", $details);
             $details2 = str_replace ("\r", "\\r\\n", $details2);
             $details2 = str_replace ("\n", "\\r\\n", $details2);
      
-            return $this->my_json_decode('/createtask.rest',"projectid=8\r\ntitle=$taskname\r\ndetails=$details2\r\n");
+            return $this->my_json_decode('/createtask.rest',
+                                         "projectid=$projectid\r\nassigntoname=$group\r\ncategory=$category\r\ntitle=$taskname\r\ndetails=$details2\r\n");
         }
         
         function my_json_decode($cmd,$data='')
         {
             $result = $this->do_post_request($cmd,$data);
-
-            $decoded = json_decode($result);
-
-            if (count($decoded) == 1)
+            $decoded = json_decode(str_replace('""level','","level',$result)); //str_replace = workaround for json bug
+    
+            if (count($decoded) >= 1)
             {
                 if (!$decoded[0]->{"result"})
                 {
@@ -67,6 +78,7 @@
                                         'method' => 'POST',
                                         'content' => $this->baseString.$data,
                                         'header' => "Content-Type: application/x-rstaskgroup-name-value-pair; charset=UTF-8\r\nConnection: close"
+                                       //      'header' => "Content-Type: application/x-rstaskgroup-name-value-pair; charset=UTF-8"
                                             ));
             $ctx = stream_context_create($params);
 

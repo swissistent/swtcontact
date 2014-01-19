@@ -35,23 +35,19 @@
             
             if(get_option("username"))
             {
-                $returncode = self::$server->login();
+                $returncode = self::$server->get_group_list();
+                self::populate_list($returncode, 'grouplist', 'group_selection');
+                
+                $returncode = self::$server->get_project_list();
+                self::populate_list($returncode, 'projectlist', 'project_selection');
 
-                if (count($returncode) == 1 && $returncode[0]->{"result"}) //kein error, wenn ein result geliefert wird
-                {
-                    $grouplist = $returncode[0]->{"grouplist"};
-
-                    update_option("group_selection",$grouplist);
-
-                }
-                else
-                {
-                    self::$error=$returncode[0]->{"errorinfo"};
-                    //self::$error=json_encode($returncode);
-                }
+                $returncode = self::$server->get_category_list();
+                self::populate_list($returncode, 'categorylist', 'category_selection');
+                
                 add_action('wp_footer', array(__CLASS__, 'insert_code'));
             }
-            else {
+            else
+            {
                 add_action('admin_notices', array(__CLASS__, 'admin_notice'));
             }
         }
@@ -62,6 +58,20 @@
             $secret = get_option("userlike_secret");
             echo "<script src=\"https://s3-eu-west-1.amazonaws.com/userlike-cdn-widgets/".$secret.".js\"></script>";
         }*/
+        
+        function populate_list($map, $json_key, $wp_key)
+        {
+            if (count($map) >= 1 && $map[0]->{"result"}) //kein error, wenn ein result geliefert wird
+            {
+                $list = $map[0]->{$json_key};
+                update_option($wp_key,$list);
+                
+            }
+            else
+            {
+                self::$error=$map[0]->{"errorinfo"};
+            }
+        }
         
         function admin_notice(){
                 echo '<div class="error"><p><strong>'.sprintf(__('Die Swissistent Tasks Contact Form Integration ist noch nicht abgeschlossen. Bitte erg&auml;ntzen Sie auf der <a href="%s">Plug-In Seite</a> Tasks Benutzername und Passwort.' ), admin_url('options-general.php?page=swtcontact')).'</strong></p></div>';
@@ -79,7 +89,12 @@
             register_setting('swtcontact', 'password');
             register_setting('swtcontact', 'group_selection');
             register_setting('swtcontact', 'group');
+            register_setting('swtcontact', 'project_selection');
+            register_setting('swtcontact', 'project');
+            register_setting('swtcontact', 'category_selection');
+            register_setting('swtcontact', 'category');
 
+            
             add_settings_section('swtcontact', 'Swissistent Tasks Contact Form', '', 'swtcontact');
         }
         
@@ -120,9 +135,8 @@
             {
                 if (SwissistentTasksContactForm::$server!=null)
                 {
-                    $returncode = SwissistentTasksContactForm::$server->create_task($subject,$message);
-                    throw new Exception();
-                    
+                    $returncode = SwissistentTasksContactForm::$server->create_task($subject,get_option('project'),get_option('group'),get_option('category'),$message);
+
                     if (count($returncode) == 1 && $returncode[0]->{"result"}) //kein error, wenn ein result geliefert wird
                     {
                         return true;
@@ -146,8 +160,11 @@
     
     function wp_mail_error( $to, $subject, $message, $error, $headers = '' )
     {
+        $errormessage='';
+        if ($error instanceof Exception)
+            $errormessage=$error->getMessage();
         
-        $returncode = wp_mail_original(get_settings('admin_email'),'ERROR in wp_mail_script',$error,$headers);
+        $returncode = wp_mail_original(get_settings('admin_email'),'ERROR in wp_mail_script: '.$errormessage,$error,$headers);
         return $returncode && wp_mail_original($to,$subject,$message,$headers);
 
         

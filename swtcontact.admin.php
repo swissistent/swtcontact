@@ -23,19 +23,54 @@
                                             {
                                                 foreach (get_option('group_selection') as $groupselection)
                                                 {
-                                                    foreach ($groupselection as $key => $value) {
-                                                        if ($key=="groupdisplayname")
-                                                        {
-                                                            if ($value == get_option('group'))
-                                                                echo "<option selected>".$value."</option>";
-                                                            else
-                                                                echo "<option>".$value."</option>";
-                                                        }
-                                                    }
+                                                    echo '<option';
+                                                    
+                                                    if ($groupselection->groupdisplayname==get_option('group'))
+                                                        echo ' selected';
+                                                
+                                                    echo '>'.$groupselection->groupdisplayname.'</option>';
                                                 }
                                             }
                                         ?>
                                     </select>
+                                </p>
+                                <p>
+                                    <label for="project"><?php echo __('Projekt:', 'project') ?></label><br />
+                                    <select name="project" style="width:100%" >
+                                    <?php
+                                        if (get_option('project_selection'))
+                                        {
+                                            foreach (get_option('project_selection') as $projectselection)
+                                            {
+                                                echo '<option value="'.$projectselection->projectid.'"';
+                                                
+                                                if ($projectselection->projectid==get_option('project'))
+                                                    echo ' selected';
+                                                
+                                                echo '>'.$projectselection->projectname.'</option>';
+                                            }
+                                        }
+                                        ?>
+                                    </select>
+                                </p>
+                                <p>
+                                    <label for="category"><?php echo __('Kategorie:', 'category') ?></label><br />
+                                    <select name="category" style="width:100%" >
+                                    <?php
+                                        if (get_option('category_selection'))
+                                        {
+                                            foreach (get_option('category_selection') as $categoryselection)
+                                            {
+                                                echo '<option';
+                                                
+                                                if ($categoryselection->categoryid==get_option('category'))
+                                                    echo ' selected';
+            
+                                                echo '>'.$categoryselection->categoryname.'</option>';
+                                            }
+                                        }
+                                    ?>
+                                </select>
                                 </p>
                                 <p class="submit">
                                     <input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" />
@@ -44,6 +79,6 @@
 
 							<p style="color:#999239;background-color:#ffffe0;font-size:smaller;padding:0.4em 0.6em !important;border:1px solid #e6db55;-moz-border-radius:3px;-khtml-border-radius:3px;-webkit-border-radius:3px;border-radius:3px">Sie haben keinen Swissistent Benutzernamen? Registrieren Sie sich auf <a href="http://www.swissistent.ch/" target="_blank">swissistent.ch</a></p>
 						</div>
-					</div>									
+					</div>
 				</div>
 			</div>
