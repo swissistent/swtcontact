@@ -3,15 +3,13 @@
      Plugin Name: Swissistent Tasks Contact Form
      Plugin URI: http://www.swissistent.ch
      Description: Contact Form that sends requests automatically to Swissistent Tasks
-     Version: 0.1
+     Version: 0.2
      Author: Swissistent GmbH
      Author URI: http://www.swissistent.ch
      Min WP Version: 1.5
      */
     
-    include "swthelper.php";
-    include "server.php";
-
+    require_once "server.php";
     
     class SwissistentTasksContactForm {
         
@@ -49,13 +47,6 @@
                 add_action('admin_notices', array(__CLASS__, 'admin_notice'));
             }
         }
-        
-    //    function insert_code(){
-            /* Insert Userlike javascript code into the page */
-    /*        if(!self::$is_enabled) return false;
-            $secret = get_option("userlike_secret");
-            echo "<script src=\"https://s3-eu-west-1.amazonaws.com/userlike-cdn-widgets/".$secret.".js\"></script>";
-        }*/
         
         function populate_list($map, $json_key, $wp_key)
         {
@@ -109,12 +100,9 @@
         {
             if (self::$error)
             {
-                echo_admin_error(self::$error);
+                echo '<div id="setting-error-settings_error" class="error settings-error"><p><strong>'.self::$error.'</strong></p></div>';
             }
-            else
-            {
 
-            }
             $plugin_dir = self::$plugin_dir;
             $in_swtcontact = true;
             require_once "swtcontact.admin.php";
@@ -156,18 +144,6 @@
         }
     }
     
-    function wp_mail_error( $to, $subject, $message, $error, $headers = '' )
-    {
-        $errormessage='';
-        if ($error instanceof Exception)
-            $errormessage=$error->getMessage();
-        
-        $returncode = wp_mail_original(get_settings('admin_email'),'ERROR in wp_mail_script: '.$errormessage,$error,$headers);
-        return $returncode && wp_mail_original($to,$subject,$message,$headers);
-
-        
-    }
-                                         
     function wp_mail_original( $to, $subject, $message, $headers = '' )
     {
         if( $headers == '' )
@@ -177,6 +153,16 @@
             "Content-Type: text/plain; charset=\"" . get_settings('blog_charset') . "\"\n";
         }
         return @mail($to, $subject, $message, $headers);
+    }
+    
+    function wp_mail_error( $to, $subject, $message, $error, $headers = '' )
+    {
+        $errormessage='';
+        if ($error instanceof Exception)
+            $errormessage=$error->getMessage();
+        
+        $returncode = wp_mail_original(get_settings('admin_email'),'ERROR in wp_mail_script: '.$errormessage,$error,$headers);
+        return $returncode && wp_mail_original($to,$subject,$message,$headers);
     }
     
 ?>

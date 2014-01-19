@@ -77,7 +77,6 @@
                                         'method' => 'POST',
                                         'content' => $this->baseString.$data,
                                         'header' => "Content-Type: application/x-rstaskgroup-name-value-pair; charset=UTF-8\r\nConnection: close"
-                                       //      'header' => "Content-Type: application/x-rstaskgroup-name-value-pair; charset=UTF-8"
                                             ));
             $ctx = stream_context_create($params);
 
