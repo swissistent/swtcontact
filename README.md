@@ -10,6 +10,8 @@ Version
 
 0.2 Minor install bugfixes
 
+0.3 Implement ignore patterns for email-subject (that confirmations are still sent to the user)
+
 
 Installation
 ============
@@ -19,10 +21,11 @@ Installation
 4. Upload it into wordpress' wp-content/plugins directory
 5. Active the plugin in wordpress' admin-console (Plugins / Installed Plugins)
 6. Enter username and password of Swissistent Tasks (if you don't have credentials just contact Swissistent GmbH)
-7. Press: Save
-8. Now the plugin fetches projects, groups and categories
-9. Select the according values and enter passwort AGAIN
-10. Press: Save
+7. If required enter a ignore pattern: Emails with this subject are still sent per email.
+8. Press: Save
+9. Now the plugin fetches projects, groups and categories
+10. Select the according values and enter passwort AGAIN
+11. Press: Save
 
 Now every contact request is forwarded to Swissistent Tasks
 
