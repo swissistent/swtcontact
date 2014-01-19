@@ -3,12 +3,10 @@
      Plugin Name: Swissistent Tasks Contact Form
      Plugin URI: http://www.swissistent.ch
      Description: Contact Form that sends requests automatically to Swissistent Tasks
-     Version: 1.0
+     Version: 0.1
      Author: Swissistent GmbH
      Author URI: http://www.swissistent.ch
-     Update Server: http://www.swissistent.ch/wp-content/download/wp_swissistenttasks_contact
      Min WP Version: 1.5
-     Max WP Version: 2.8
      */
     
     include "swthelper.php";

@@ -4,7 +4,6 @@
         private $url;
         private $username;
         private $passwordHash;
-     //   private $project;
         private $baseString;
         
         function __construct($url, $username, $passwordHash)
