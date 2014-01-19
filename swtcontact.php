@@ -25,7 +25,7 @@
         function init(){
 
             load_plugin_textdomain('swtcontact', false, dirname(plugin_basename(__FILE__)));
-            self::$server = new Server("http://88.198.191.154",get_option("username"), get_option("password"));
+            self::$server = new Server("http://88.198.191.154",get_option("username"), get_option("passwordHash"));
             
             self::$plugin_dir = get_option('siteurl').'/'.PLUGINDIR.'/swtcontact/';
             if(function_exists('current_user_can') && current_user_can('manage_options')){
@@ -86,7 +86,7 @@
         
         function register_settings(){
             register_setting('swtcontact', 'username');
-            register_setting('swtcontact', 'password');
+            register_setting('swtcontact', 'passwordHash');
             register_setting('swtcontact', 'group_selection');
             register_setting('swtcontact', 'group');
             register_setting('swtcontact', 'project_selection');

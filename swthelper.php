@@ -3,5 +3,4 @@
     {
         echo '<div id="setting-error-settings_error" class="error settings-error"><p><strong>'.$text.'</strong></p></div>';
     }
-    
 ?>

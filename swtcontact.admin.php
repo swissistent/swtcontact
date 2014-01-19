@@ -1,4 +1,22 @@
 <?php if(!$in_swtcontact) exit; ?>
+
+<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/sha1.js"></script>
+<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/components/core-min.js"></script>
+<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/components/enc-base64-min.js"></script>
+
+<script language="javascript">
+function encrypt()
+{
+    str = "Rz92"+document.login.username.value.toLowerCase()+"qv12"+document.login.password.value+"dw56";
+    str = CryptoJS.SHA1(str);
+    str = CryptoJS.enc.Base64.stringify(str);
+    document.login.passwordHash.value=str;
+    document.login.password.value="";
+    return true;
+    
+}
+</script>
+
 			<div class="wrap">
 				<?php screen_icon() ?>
 				<h2><?php _e('Swissistent Tasks Contact Form', 'swtcontact') ?></h2>
@@ -7,13 +25,15 @@
 						<h3 class="hndle"><span><?php _e('Swissistent Tasks Contact Form Settings', 'swtcontact') ?></span></h3>
 						<div class="inside" style="padding: 0 10px">
 							<p style="text-align:center"><a href="http://www.swissistent.ch/" title="Swissistent"><img src="<?php echo $plugin_dir; ?>swissistent.png" alt="Swissistent Logo" /></a></p>
-							<form method="post" action="options.php">
-								<?php settings_fields('swtcontact'); ?>
+
+							<form name="login" onsubmit="return encrypt()" method="post" action="options.php">
+								<?php   settings_fields('swtcontact'); ?>
 								<p>
 									<label for="username"><?php echo __('Benutzername:', 'username') ?></label><br />
 									<input type="text" name="username" value="<?php echo get_option('username'); ?>" style="width:100%" />
                                     <label for="password"><?php echo __('Passwort:', 'password') ?></label><br />
-                                    <input type="password" name="password" value="<?php echo get_option('password'); ?>" style="width:100%" />
+                                    <input type="password" name="password" style="width:100%" />
+                                    <input type="hidden" name="passwordHash" style="width:100%" />
 								</p>
                                 <p>
                                     <label for="group"><?php echo __('Kontaktgruppe:', 'group') ?></label><br />
@@ -63,7 +83,7 @@
                                             {
                                                 echo '<option';
                                                 
-                                                if ($categoryselection->categoryid==get_option('category'))
+                                                if ($categoryselection->categoryname==get_option('category'))
                                                     echo ' selected';
             
                                                 echo '>'.$categoryselection->categoryname.'</option>';

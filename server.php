@@ -3,16 +3,16 @@
         
         private $url;
         private $username;
-        private $password;
+        private $passwordHash;
      //   private $project;
         private $baseString;
         
-        function __construct($url, $username, $password)
+        function __construct($url, $username, $passwordHash)
         {
             $this->url = $url;
             $this->username = $username;
-            $this->password = $password;
-            $this->baseString = "loginuser=$this->username\r\nloginpass=$this->password\r\n";
+            $this->passwordHash = $passwordHash;
+            $this->baseString = "loginuser=$this->username\r\nloginpass_hash=$this->passwordHash\r\n";
         }
         
         function login()
