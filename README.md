@@ -8,7 +8,11 @@ Version
 
 0.1 Initial
 
-0.2 Minor install bugfixes
+0.2 Minor installation bugfixes
+
+0.3 Bugfix: Remove unused function
+    Handle crlf properly
+    Allow multiple filter criteria
 
 0.3 Implement ignore patterns for email-subject (that confirmations are still sent to the user)
 
@@ -33,3 +37,10 @@ Security
 =============
 Passwort is hashed!
 For security reasons we recommend ask Swissistent GmbH for a technical user with the minimum of the neccessary rights. 
+
+Initial filter criteria that could be used
+==========================================
+Thank you for your Message!
+[<blog-name>] New User Registration
+[<blog-name>] Registrierung eines neuen Benutzers
+[<blog-name>] Dein Benutzername und Passwort

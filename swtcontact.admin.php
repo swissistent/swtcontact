@@ -35,7 +35,7 @@ function encrypt()
                                     <input type="password" name="password" style="width:100%" />
                                     <input type="hidden" name="passwordHash" style="width:100%" />
                                     <label for="ignorePattern"><?php echo __('Ignorieren:', 'ignorePattern') ?></label><br />
-                                    <input type="text" name="ignorePattern" value="<?php echo get_option('ignorePattern'); ?>" style="width:100%" />
+                                    <textarea name="ignorePattern" style="width:100%" rows="10"><?php echo get_option('ignorePattern'); ?></textarea>
                                 </p>
                                 <p>
                                     <label for="group"><?php echo __('Kontaktgruppe:', 'group') ?></label><br />

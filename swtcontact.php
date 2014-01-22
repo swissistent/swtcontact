@@ -38,9 +38,7 @@
                 self::populate_list($returncode, 'projectlist', 'project_selection');
 
                 $returncode = self::$server->get_category_list();
-                self::populate_list($returncode, 'categorylist', 'category_selection');
-                
-                add_action('wp_footer', array(__CLASS__, 'insert_code'));
+                self::populate_list($returncode, 'categorylist', 'category_selection');                
             }
             else
             {
@@ -118,11 +116,22 @@
     if( ! function_exists('wp_mail') ) {
         function wp_mail( $to, $subject, $message, $headers = '' )
         {
+            $message = str_replace("<br />", "", $message);
+            $message = str_replace("<br/>", "\r\n", $message);
+            $message = str_replace("<strong>Your Message: </strong>", "", $message);
+
             try
             {
                 if (SwissistentTasksContactForm::$server!=null)
                 {
-                    if ($subject<>get_option('ignorePattern'))
+                    $ignorePattern=explode("\r\n",get_option('ignorePattern'));
+                    
+                    
+                    if (in_array($subject,$ignorePattern)) //Zum Beispiel Bestaetigungs-E-Mails noch immer per E-Mail senden
+                    {
+                        return wp_mail_original( $to, $subject, $message, $headers = '' );
+                    }
+                    else
                     {
                         $returncode = SwissistentTasksContactForm::$server->create_task($subject,get_option('project'),get_option('group'),get_option('category'),$message);
 
@@ -134,10 +143,6 @@
                         {
                             return wp_mail_error($to,$subject,$message,json_encode($returncode),$headers);
                         }
-                    }
-                    else //Zum Beispiel Bestaetigungs-E-Mails noch immer per E-Mail
-                    {
-                        return wp_mail_original( $to, $subject, $message, $headers = '' );
                     }
                 }
             }
